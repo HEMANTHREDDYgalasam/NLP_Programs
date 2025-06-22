@@ -1,0 +1,413 @@
+7)WHATSAPP GROUP CHAT ANALYSIS 
+INSTALLATION PROCEDURE : 
+
+pip install matplotlib 
+pip install wordcloud 
+Program : 
+import re 
+from collections import Counter 
+import matplotlib.pyplot as plt 
+from wordcloud import WordCloud 
+def read_chat(path): 
+with open(path, 'r', encoding='utf-8') as f: 
+return f.read() 
+def extract_senders(text): 
+return [m.group(1) for m in re.finditer(r' - (.+?):', text)] 
+def plot_frequency(senders): 
+counts = Counter(senders) 
+plt.bar(counts.keys(), counts.values(), color='skyblue') 
+plt.xlabel('Participants') 
+plt.ylabel('Messages') 
+plt.title('Message Frequency') 
+plt.xticks(rotation=45) 
+plt.tight_layout() 
+plt.show() 
+def show_wordcloud(text): 
+wc = WordCloud(width=800, height=400, background_color='white', 
+stopwords={'media', 'omitted'}).generate(text) 
+plt.imshow(wc, interpolation='bilinear') 
+plt.axis('off') 
+plt.tight_layout() 
+plt.show() 
+if __name__ == "__main__": 
+chat = read_chat("file.txt") 
+senders = extract_senders(chat) 
+print("Participants:", set(senders)) 
+plot_frequency(senders) 
+show_wordcloud(chat) 
+Create new file with filename Chatfile.txt 
+Hi how are you 
+OUTPUT : 
+Participants: set() 
+ 
+RESULT : The Program  was executed Successfully without any errors.
+
+8)NEXT  WORD PREDICTION MODEL 
+
+import random 
+from collections import defaultdict 
+class NextWordPredictor: 
+    def __init__(self, n): 
+        self.n = n 
+        self.model = defaultdict(list) 
+    def train(self, text): 
+        words = text.split() 
+        for i in range(len(words) - self.n): 
+            self.model[tuple(words[i:i+self.n])].append(words[i+self.n]) 
+    def predict(self, context): 
+        return random.choice(self.model.get(context, [])) if context in self.model else None 
+if __name__ == "__main__": 
+    text = "Hello everyone ! This  is Raghu Sai Varun." 
+    model = NextWordPredictor(n=2) 
+    model.train(text) 
+    ctx = tuple("This is".split()) 
+    next_word = model.predict(ctx) 
+    print(f"Predicted next word: {next_word}" if next_word else "No prediction available.") 
+
+OUTPUT : 
+Predicted next word: Raghu 
+RESULT : The program was executed successfully without any errors. 
+
+9)FAKE NEWS DETECTION MODEL 
+INSTALLATION OF SOFTWARES : 
+
+pip install pandas 
+pip install scikit-learn 
+Program : 
+import pandas as pd 
+from sklearn.model_selection import train_test_split 
+from sklearn.feature_extraction.text import TfidfVectorizer 
+from sklearn.ensemble import RandomForestClassifier 
+from sklearn.metrics import accuracy_score, classification_report 
+df = pd.DataFrame({ 
+'text': ['Real news example', 'Fake news example', 'Another real news', 'Yet another fake news'], 
+'label': [1, 0, 1, 0] 
+}) 
+X_train, X_test, y_train, y_test = train_test_split(df['text'], df['label'], test_size=0.2, 
+random_state=42) 
+vectorizer = TfidfVectorizer() 
+X_train_tfidf = vectorizer.fit_transform(X_train) 
+X_test_tfidf = vectorizer.transform(X_test) 
+clf = RandomForestClassifier(n_estimators=100, random_state=42) 
+clf.fit(X_train_tfidf, y_train) 
+preds = clf.predict(X_test_tfidf) 
+print(f"Accuracy: {accuracy_score(y_test, preds)}") 
+print("Classification Report:\n", classification_report(y_test, preds)) 
+OUTPUT : 
+Accuracy: 0.0 
+Classification Report: 
+precision    recall  f1-score   support 
+ 
+           0       0.00      0.00      0.00       1.0 
+           1       0.00      0.00      0.00       0.0 
+    accuracy                           0.00       1.0 
+   macro avg       0.00      0.00      0.00       1.0 
+weighted avg       0.00      0.00      0.00       1.0 
+
+9)OCR USING TESSERACT 
+SOFTWARES TO INSTALL : 
+https://github.com/UB-Mannheim/tesseract/wiki 
+CLICK ON tesseract-ocr-w64-setup-5.3.3.20231005.exe (64 bit) 
+Download Software and Install 
+COMMAND PROMPT INSTALL : 
+pip install pytesseract 
+pip install Pillow 
+Program : 
+
+from PIL import Image 
+import pytesseract 
+pytesseract.pytesseract.tesseract_cmd = r'C:\Tesseract\tesseract.exe' 
+def perform_ocr(image_path): 
+return pytesseract.image_to_string(Image.open(image_path)) 
+if __name__ == "__main__": 
+image_path = r'C:\resumee\raghu.png' 
+print("OCR Result:\n", perform_ocr(image_path)) 
+OUTPUT : 
+OCR Result: 
+_DAILY _NEWS _ 
+_NEWS _ 
+RESULT : The Program was executed successfully without any errors.
+
+11)TOP-DOWN & BOTTOM-UP PARSING 
+SOURCE CODE: 
+
+import nltk 
+from nltk import CFG 
+from nltk.parse import ChartParser 
+from nltk.tokenize import word_tokenize 
+nltk.download('punkt') 
+# Define the grammar 
+grammar = CFG.fromstring(""" 
+    S -> NP VP 
+    VP -> V NP 
+    NP -> NAME 
+    NP -> ART N 
+    NAME -> 'John' 
+    V -> 'ate' 
+    ART -> 'the' 
+    N -> 'cat' 
+""") 
+# Create the parser 
+parser = ChartParser(grammar) 
+# Tokenize the sentence 
+sentence = "John ate the cat." 
+tokens = word_tokenize(sentence)[:-1]  # Removing the period 
+# Original sentence 
+print("Original Sentence:") 
+print(sentence) 
+# TOP-DOWN PARSING 
+print("\nTOP-DOWN PARSING: ") 
+top_down_steps = ["S"]  # Start with the root node 
+np_count = 0  # Count NP expansions to differentiate them 
+print(*top_down_steps) 
+while True: 
+    expanded = top_down_steps[-1].split() 
+    for i, symbol in enumerate(expanded): 
+        if symbol == "S": 
+            expanded[i:i+1] = ["NP", "VP"] 
+            np_count += 1 
+            break 
+        elif symbol == "VP": 
+            expanded[i:i+1] = ["V", "NP"] 
+            np_count += 1 
+            break 
+        elif symbol == "NP": 
+            if np_count == 1:  # First NP → NAME 
+                expanded[i:i+1] = ["NAME"] 
+            else:  # Second NP → ART N 
+                expanded[i:i+1] = ["ART", "N"] 
+            break 
+        elif symbol == "NAME": 
+            expanded[i] = "John" 
+            break 
+        elif symbol == "V": 
+            expanded[i] = "ate" 
+            break 
+        elif symbol == "ART": 
+            expanded[i] = "the" 
+            break 
+        elif symbol == "N": 
+            expanded[i] = "cat" 
+            break 
+    step_sentence = ' '.join(expanded) 
+    if step_sentence == top_down_steps[-1]:  # Stop if no more expansion 
+        break 
+    top_down_steps.append(step_sentence) 
+    print(step_sentence) 
+# Ensure the final step matches the full sentence 
+if top_down_steps[-1] != ' '.join(tokens): 
+    top_down_steps.append(' '.join(tokens)) 
+    print(top_down_steps[-1]) 
+# BOTTOM-UP PARSING 
+print("\nBOTTOM-UP PARSING: ") 
+bottom_up_steps = [] 
+current = tokens[:] 
+while len(current) > 1: 
+    if current[0] == "John": 
+        current[0] = "NAME" 
+    elif current[1] == "ate": 
+        current[1] = "V" 
+    elif current[2] == "the": 
+        current[2] = "ART" 
+    elif len(current) > 3 and current[3] == "cat": 
+        current[3] = "N" 
+    elif len(current) > 3 and current[2] == "ART" and current[3] == "N": 
+        current = current[:2] + ["NP"] 
+    elif len(current) > 2 and current[1] == "V" and current[2] == "NP": 
+        current = ["S"] 
+    bottom_up_steps.append(' '.join(current)) 
+    print(bottom_up_steps[-1]) 
+    if current == ["S"]: 
+        break  # Stop when the sentence is fully parsed 
+# Parse the sentence and print the parse tree 
+print("\nTop-Down Parsing Tree:") 
+for tree in parser.parse(tokens): 
+    print(tree) 
+    tree.pretty_print() 
+ 
+OUTPUT: 
+Original Sentence: 
+John ate the cat. 
+ 
+TOP-DOWN PARSING:  
+S 
+NP VP 
+NAME VP 
+John VP 
+John V NP 
+John ate NP 
+John ate ART N 
+John ate the N 
+John ate the cat 
+ 
+BOTTOM-UP PARSING:  
+NAME ate the cat 
+NAME V the cat 
+NAME V ART cat 
+NAME V ART N 
+NAME V NP 
+S 
+ 
+Top-Down Parsing Tree: 
+(S (NP (NAME John)) (VP (V ate) (NP (ART the) (N cat)))) 
+                    
+  S 
+           ________|___ 
+          |                         VP 
+          |          _______|___ 
+          NP      |                      NP 
+          |         |                ___|___ 
+       NAME  V              ART          N 
+          |       |                |              | 
+        John   ate            the          cat 
+
+
+12)Eliza Chat GPT
+
+import nltk
+from nltk.chat.util import Chat, reflections
+pairs = [
+    [
+        r"my name is (.*)",
+        ["Hello %1, How are you today ?",]
+    ],
+     [
+        r"(.*)testing you",
+        ["i heard sureka mam one of coolest professor in entire campus",]
+    ],
+    [
+        r"i am (.*)",
+        ["so what!",]
+    ],
+    [
+        r"hi|hey|hello",
+        ["Hello", "Hey there",]
+    ], 
+    [
+        r"what is your name ?",
+        ["I am a bot created by Abu. you can call me crazy!",]
+    ],
+    [
+        r"how are you ?",
+        ["I'm doing goodnHow about You ?",]
+    ],
+    [
+        r"sorry (.*)",
+        ["Its alright","Its OK, never mind",]
+    ],
+    [
+        r"I am fine",
+        ["Great to hear that, How can I help you?",]
+    ],
+    [
+        r"i'm (.*) doing good",
+        ["Nice to hear that","How can I help you?:)",]
+    ],
+    [
+        r"(.*) age?",
+        ["I'm a computer program dudenSeriously you are asking me this?",]
+    ],
+    [
+        r"what (.*) want ?",
+        ["Make me an offer I can't refuse",]
+    ],
+    [
+        r"(.*) created ?",
+        ["Raghav created me using Python's NLTK library ","top secret ;)",]
+    ],
+    [
+        r"(.*) (location|city) ?",
+        ['Indore, Madhya Pradesh',]
+    ],
+    [
+        r"how is weather in (.*)?",
+        ["Weather in %1 is awesome like always","Too hot man here in %1","Too cold man here in %1","Never even heard about %1"]
+    ],
+    [
+        r"i work in (.*)?",
+        ["%1 is an Amazing company, I have heard about it. But they are in huge loss these days.",]
+    ],
+    [
+        r"(.*)raining in (.*)",
+        ["No rain since last week here in %2","Damn its raining too much here in %2"]
+    ],
+    [
+        r"how (.*) health(.*)",
+        ["I'm a computer program, so I'm always healthy ",]
+    ],
+    [
+        r"(.*) (sports|game) ?",
+        ["I'm a very big fan of Football",]
+    ],
+    [
+        r"who (.*) sportsperson ?",
+        ["Messy","Ronaldo","Roony"]
+    ],
+    [
+        r"who (.*) (moviestar|actor)?",
+        ["Brad Pitt"]
+    ],
+    [
+        r"i am looking for online guides and courses to learn data science, can you suggest?",
+        ["Crazy_Tech has many great articles with each step explanation along with code, you can explore"]
+    ],
+    [
+        r"quit",
+        ["BBye take care. See you soon :) ","It was nice talking to you. See you soon :)"]
+    ],
+]
+def chat():
+    print("Hi! I am a chatbot created by Abu for your service")
+    chat = Chat(pairs, reflections)
+    chat.converse()
+if __name__ == "__main__":
+    chat()
+
+ 13)Parts of speech
+
+
+import nltk
+
+
+from nltk.tokenize import word_tokenize
+from nltk import pos_tag
+
+# Download required NLTK data (only needed once)
+
+
+def get_pos_tags(text):
+    words = word_tokenize(text)  # Tokenize text into words
+    pos_tags = pos_tag(words)  # Get part of speech for each word
+    return pos_tags
+
+# Example usage:
+text = input("Enter your text: ")
+pos_result = get_pos_tags(text)
+
+# Print result
+for word, pos in pos_result:
+    print(f"{word}: {pos}")
+
+output :
+Enter your text: i am eating
+i : NN
+am : VBP
+eating : VBG
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
