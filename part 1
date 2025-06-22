@@ -1,0 +1,224 @@
+1)Resume screening
+
+import re
+
+file_path = "./res1.txt"
+print()
+
+with open(file_path, "r", encoding="utf-8") as file:
+  resume_text = file.read()
+words = resume_text.splitlines()
+name = words[0] if words else "No name found"
+email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+email = re.search(email_pattern, resume_text)
+email = email.group(0) if email else "No email found"
+phone_pattern = r'\b\d{3}[-.\s]??\d{3}[-.\s]??\d{4}\b'
+phone = re.search(phone_pattern, resume_text)
+phone = phone.group(0) if phone else "No phone number found"
+if name != "No name found" and email != "No email found" and phone != "No phone number found":
+  decision = "Sorry, you are not selected for the interview."
+else:
+  decision = "Congratulations, you are selected for the interview!"
+print(f"Name: {name}")
+print(f"Email: {email}")
+print(f"Phone: {phone}")
+print(f"Decision: {decision}",)
+
+output:
+
+Name: Phills
+
+Email: No email found
+
+Phone: 123-456-7890
+
+Decision: Congratulations, you are selected for the interview
+
+2)Named entity
+
+import re
+def extract_entities(text):
+    entities=[]
+    date_pattern=r'\d{1,2}^d{1,2}^d{2,4}'
+    number_pattern=r'\d+'
+    name_pattern=r"[A-z][a-z]+"
+    dates=re.findall(date_pattern,text)
+    entities.extend([('DATE',date) for date in dates])
+    numbers=re.findall(number_pattern,text)
+    entities.extend([('NUMBER',number) for number in numbers])
+    names=re.findall(name_pattern,text)
+    entities.extend([('NAME',name) for name in names])
+    return entities
+if __name__=="__main__":
+    text="on 28/01/2025.,siva received $500 from madhu"
+    entities=extract_entities(text)
+    if entities:
+        print("entities found")
+        for entity_type,entity_value in entities:
+            print(f"{entity_type}:{entity_value}")
+    else:
+        print("no entities found in the text")
+
+output:
+entities found
+NUMBER:28
+NUMBER:01
+NUMBER: 2025
+NUMBER:500
+NAME:on
+NAME: siva
+NAME: received
+NAME:from
+NAME: madhu
+
+3)Sentiment Analysis
+
+
+import cv2 # pip install opencv-python {not cv2}
+
+import numpy as np
+
+def detect_emotion_by_color(image_path):
+    image = cv2.imread(image_path)
+
+    if image is None:
+        return "Error: Unable to load image. Check the file path."
+
+    # Convert image to HSV (Hue, Saturation, Value)
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+    # Calculate the average hue (color tone)
+    avg_hue = np.mean(hsv[:, :, 0])
+
+    # Emotion mapping based on color psychology
+    if avg_hue < 20 or avg_hue > 160:  
+        emotion = "Angry (Red tones detected)"
+    elif 20 <= avg_hue < 40:  
+        emotion = "Happy (Yellow tones detected)"
+    elif 40 <= avg_hue < 75:  
+        emotion = "Relaxed (Green tones detected)"
+    elif 75 <= avg_hue < 130:  
+        emotion = "Sad (Blue tones detected)"
+    else:  
+        emotion = "Neutral (Balanced colors detected)"
+
+    return f"Detected Emotion: {emotion}"
+
+# Get image path from user
+for i in range(0,10):
+   ip=input("Enter the image file path (e.g., ./angry.jpg): ")
+   if(ip=='exit'):
+       break
+   else:
+       image_path =ip.strip()
+       print(detect_emotion_by_color(image_path))
+
+4) Keyword Extraction
+
+import re
+from collections import Counter
+
+def extract_keywords(text, num_keywords=5):
+    # Remove punctuation and convert to lowercase
+    cleaned_text = re.sub(r'[^a-zA-Z\s]', '', text.lower())
+    words = cleaned_text.split()
+
+    # Count word frequencies
+    word_frequencies = Counter(words)
+
+    # Get top N keywords
+    top_keywords = word_frequencies.most_common(num_keywords)
+
+    return top_keywords
+
+if _name_ == "_main_":
+    text = "Natural language processing is a subfield of artificial intelligence that focuses on the interaction between computers and humans using natural language."
+
+    keywords = extract_keywords(text, num_keywords=5)
+
+    if keywords:
+        print("Top Keywords:")
+        for keyword, count in keywords:
+            print(f"{keyword}: {count}")
+    else:
+        print("No keywords found.")
+
+output:
+Top Keywords:
+natural: 2
+language: 2
+processing: 1
+is: 1
+a: 1
+
+5)SPELL CORRECTION MODEL 
+
+import nltk 
+from nltk.corpus import words 
+from nltk.metrics.distance import edit_distance 
+nltk.download('words') 
+class SpellCorrector: 
+    def __init__(self): 
+        self.word_set = set(w.lower() for w in words.words()) 
+    def correct(self, word): 
+        word = word.lower() 
+        if word in self.word_set: 
+            return word 
+        suggestions = [w for w in self.word_set if abs(len(w) - len(word)) <= 2 and edit_distance(word, 
+w) <= 2] 
+        return min(suggestions, key=lambda w: edit_distance(word, w), default=word) 
+if __name__ == "__main__": 
+    sc = SpellCorrector() 
+    while True: 
+        w = input("Enter a word (type 'exit' to quit): ") 
+        if w.lower() == 'exit': 
+            break 
+        print("Corrected word:", sc.correct(w)) 
+OUTPUT : 
+Enter a word (type 'exit' to quit): beutiful 
+Corrected word: beautiful 
+Enter a word (type 'exit' to quit): computar 
+Corrected word: computer 
+Enter a word (type 'exit' to quit): organisition 
+Corrected word: organization 
+Enter a word (type 'exit' to quit): exit 
+Result : The Program was executed Successfully without any errors.
+
+6)KEYBOARD AUTO CORRECTION 
+
+import numpy as np 
+class AutoCorrector: 
+    def __init__(self, dictionary): 
+        self.words = set(w.lower() for w in dictionary) 
+    def distance(self, s1, s2): 
+        if len(s1) < len(s2): s1, s2 = s2, s1 
+        prev = np.arange(len(s2) + 1) 
+        for i, c1 in enumerate(s1): 
+            curr = np.zeros(len(s2) + 1, int) 
+            curr[0] = i + 1 
+            for j, c2 in enumerate(s2): 
+                curr[j+1] = min(prev[j+1]+1, curr[j]+1, prev[j]+(c1 != c2)) 
+            prev = curr 
+        return prev[-1] 
+    def correct(self, word): 
+        word = word.lower() 
+        if word in self.words: 
+            return word 
+        return min(self.words, key=lambda w: self.distance(word, w)) 
+if __name__ == "__main__": 
+    dictionary = ["natural", "processing", "language", "program", "correction"] 
+    ac = AutoCorrector(dictionary) 
+    while True: 
+        word = input("Enter a word (type 'exit' to quit): ") 
+        if word.lower() == 'exit': 
+            break 
+print("Corrected word:", ac.correct(word)) 
+OUTPUT : 
+Enter a word (type 'exit' to quit): neutral 
+Corrected word: natural 
+Enter a word (type 'exit' to quit): langage 
+Corrected word: language 
+Enter a word (type 'exit' to quit): pracesing 
+Corrected word: processing 
+Enter a word (type 'exit' to quit): exit 
+RESULT : The Program was executed Successfully without any errors.
