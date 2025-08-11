@@ -1,5 +1,5 @@
 7)WHATSAPP GROUP CHAT ANALYSIS 
-INSTALLATION PROCEDURE : 
+INSTALLATION PROCEDURE  : 
 
 pip install matplotlib 
 pip install wordcloud 
